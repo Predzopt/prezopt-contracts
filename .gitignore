@@ -1,0 +1,12 @@
+# Foundry
+broadcast/
+cache/
+out/
+*.env
+.DS_Store
+
+# VSCode
+.vscode/
+
+# Logs
+*.log

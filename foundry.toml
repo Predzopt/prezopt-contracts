@@ -1,0 +1,33 @@
+[profile.default]
+src = 'src'
+out = 'out'
+libs = ['lib']
+solc = '0.8.24'
+evm_version = 'cancun'
+optimizer = true
+optimizer_runs = 1000
+via_ir = true
+
+remappings = [
+  'solmate/=lib/solmate/src/',
+  'openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/',
+  'openzeppelin-contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/',
+  'solady/=lib/solady/src/',
+  'forge-std/=lib/forge-std/src/'
+]
+
+verbosity = 2
+ffi = true
+gas_reports = ['*']
+
+[rpc_endpoints]
+arbitrum_sepolia = "${RPC_URL_ARBITRUM_SEPOLIA}"
+arbitrum_mainnet = "${RPC_URL_ARBITRUM_MAINNET}"
+
+[etherscan]
+arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}", url = "https://api-sepolia.arbiscan.io/api" }
+arbitrum_mainnet = { key = "${ARBISCAN_API_KEY}", url = "https://api.arbiscan.io/api" }
+
+[fmt]
+line_length = 100
+tab_width = 4
