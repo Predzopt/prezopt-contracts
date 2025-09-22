@@ -23,10 +23,16 @@ gas_reports = ['*']
 [rpc_endpoints]
 arbitrum_sepolia = "${RPC_URL_ARBITRUM_SEPOLIA}"
 arbitrum_mainnet = "${RPC_URL_ARBITRUM_MAINNET}"
+base = "${RPC_URL_BASE}"
+base_sepolia = "${RPC_URL_BASE_SEPOLIA}"
+blockdag = "${RPC_URL_BLOCKDAG}"
+blockdag_testnet = "${RPC_URL_BLOCKDAG_TESTNET}"
 
 [etherscan]
 arbitrum_sepolia = { key = "${ARBISCAN_API_KEY}", url = "https://api-sepolia.arbiscan.io/api" }
 arbitrum_mainnet = { key = "${ARBISCAN_API_KEY}", url = "https://api.arbiscan.io/api" }
+base = { key = "${BASESCAN_API_KEY}", url = "https://api.basescan.org/api" }
+base_sepolia = { key = "${BASESCAN_API_KEY}", url = "https://api-sepolia.basescan.org/api" }
 
 [fmt]
 line_length = 100

@@ -9,6 +9,10 @@ import {KeeperRewards} from "src/rewards/KeeperRewards.sol";
 import {RebalanceExecutor} from "src/executor/RebalanceExecutor.sol";
 import {AaveStrategy} from "src/strategies/AaveStrategy.sol";
 import {CompoundStrategy} from "src/strategies/CompoundStrategy.sol";
+import {PrezoptBridge} from "src/bridge/PrezoptBridge.sol";
+import {CrossChainAaveStrategy} from "src/strategies/CrossChainAaveStrategy.sol";
+import {CrossChainCompoundStrategy} from "src/strategies/CrossChainCompoundStrategy.sol";
+import {CrossChainRebalanceExecutor} from "src/executor/CrossChainRebalanceExecutor.sol";
 import {GovernorPrezopt} from "src/governance/GovernorPrezopt.sol";
 import {TimelockController} from "src/governance/TimelockController.sol";
 import {ERC20} from "openzeppelin-contracts/token/ERC20/ERC20.sol";
@@ -33,15 +37,40 @@ contract DeployAll is Script {
         // Deploy Vault
         PrezoptVault vault = new PrezoptVault(SolmateERC20(usdc), deployer, address(staking), address(keeperRewards));
 
-        // Deploy Strategies (mock addresses for now)
-        // AaveStrategy aaveStrategy = new AaveStrategy(usdc, deployer, deployer, deployer); // Abstract
+        // Deploy Bridge
+        PrezoptBridge bridge = new PrezoptBridge(vm.envAddress("LZ_ENDPOINT"), deployer);
+        bridge.setSupportedToken(usdc, true);
+
+        // Deploy Strategies
         CompoundStrategy compoundStrategy = new CompoundStrategy(usdc, deployer);
+        
+        CrossChainAaveStrategy crossAaveStrategy = new CrossChainAaveStrategy(
+            usdc,
+            address(bridge),
+            uint32(vm.envUint("BASE_EID")),
+            vm.envAddress("BASE_AAVE_RECEIVER")
+        );
+        
+        CrossChainCompoundStrategy crossCompoundStrategy = new CrossChainCompoundStrategy(
+            usdc,
+            address(bridge),
+            uint32(vm.envUint("BASE_EID")),
+            vm.envAddress("BASE_COMPOUND_RECEIVER")
+        );
 
         // Deploy DEX Aggregator mock
         AggregatorMock dex = new AggregatorMock(ERC20(usdc));
 
-        // Deploy Executor
+        // Deploy Executors
         RebalanceExecutor executor = new RebalanceExecutor(SoladyERC20(usdc), address(vault), deployer, deployer, address(dex));
+        
+        CrossChainRebalanceExecutor crossExecutor = new CrossChainRebalanceExecutor(
+            SoladyERC20(usdc),
+            address(vault),
+            deployer,
+            deployer,
+            address(bridge)
+        );
 
         // Deploy Timelock + Governor
         TimelockController timelock = new TimelockController();
@@ -57,7 +86,11 @@ contract DeployAll is Script {
         console.log("Vault:", address(vault));
         console.log("Executor:", address(executor));
         // console.log("AaveStrategy:", address(aaveStrategy));
+        console.log("Bridge:", address(bridge));
         console.log("CompoundStrategy:", address(compoundStrategy));
+        console.log("CrossChainAaveStrategy:", address(crossAaveStrategy));
+        console.log("CrossChainCompoundStrategy:", address(crossCompoundStrategy));
+        console.log("CrossChainExecutor:", address(crossExecutor));
         console.log("Staking:", address(staking));
         console.log("KeeperRewards:", address(keeperRewards));
         console.log("Timelock:", address(timelock));

@@ -22,7 +22,7 @@ contract CompoundStrategy is IStrategy {
         comet = IComet(_comet);
     }
 
-    function invest(uint256 amount) external override {
+    function invest(uint256 amount) external payable override {
         SafeTransferLib.safeApprove(address(asset), address(comet), 0);
         SafeTransferLib.safeApprove(address(asset), address(comet), amount);
         comet.supply(address(asset), amount);

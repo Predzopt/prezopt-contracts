@@ -36,7 +36,7 @@ contract RebalanceExecutor is IRebalanceExecutor, EIP712 {
         dexAggregator = IAggregator(_dexAggregator);
     }
 
-    function rebalance(RebalanceSignal calldata signal) external {
+    function rebalance(RebalanceSignal calldata signal) external payable {
         require(msg.sender == keeper, "Not keeper");
         require(block.timestamp - signal.timestamp <= MAX_AGE, "Stale");
 

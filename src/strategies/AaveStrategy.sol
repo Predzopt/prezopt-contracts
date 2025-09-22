@@ -26,7 +26,7 @@ abstract contract AaveStrategy is IStrategy {
         rewardToken = IERC20(_rewardToken);
     }
 
-    function invest(uint256 amount) external override {
+    function invest(uint256 amount) external payable override {
         SafeTransferLib.safeApprove(address(asset), address(pool), 0);
         SafeTransferLib.safeApprove(address(asset), address(pool), amount);
         pool.supply(address(asset), amount, address(this), 0);
