@@ -1,0 +1,96 @@
+type Vault @entity {
+  id: ID!
+  totalAssets: BigInt!
+  totalSupply: BigInt!
+  sharePrice: BigDecimal!
+  depositCount: BigInt!
+  withdrawalCount: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type User @entity {
+  id: ID! # address
+  vaultShares: BigInt!
+  vaultAssets: BigInt!
+  stakedPZT: BigInt!
+  pendingRewards: BigInt!
+  depositCount: BigInt!
+  withdrawalCount: BigInt!
+  totalDeposited: BigInt!
+  totalWithdrawn: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type Deposit @entity {
+  id: ID! # tx hash + log index
+  user: User!
+  assets: BigInt!
+  shares: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type Withdrawal @entity {
+  id: ID! # tx hash + log index
+  user: User!
+  assets: BigInt!
+  shares: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type StakingUser @entity {
+  id: ID! # address
+  stakedAmount: BigInt!
+  rewardsClaimed: BigInt!
+  stakeCount: BigInt!
+  unstakeCount: BigInt!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type StakeEvent @entity {
+  id: ID! # tx hash + log index
+  user: StakingUser!
+  amount: BigInt!
+  type: String! # "STAKE" or "UNSTAKE"
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type Rebalance @entity {
+  id: ID! # tx hash + log index
+  fromStrategy: Bytes!
+  toStrategy: Bytes!
+  amount: BigInt!
+  profit: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type Strategy @entity {
+  id: ID! # address
+  name: String!
+  currentAPY: BigInt!
+  totalAssets: BigInt!
+  allocationPercentage: BigDecimal!
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+type DailyMetric @entity {
+  id: ID! # date (YYYY-MM-DD)
+  date: String!
+  totalAssets: BigInt!
+  totalUsers: BigInt!
+  dailyDeposits: BigInt!
+  dailyWithdrawals: BigInt!
+  dailyVolume: BigInt!
+  averageAPY: BigDecimal!
+}

@@ -9,23 +9,37 @@ import {KeeperRewards} from "src/rewards/KeeperRewards.sol";
 import {RebalanceExecutor} from "src/executor/RebalanceExecutor.sol";
 import {AaveStrategy} from "src/strategies/AaveStrategy.sol";
 import {CompoundStrategy} from "src/strategies/CompoundStrategy.sol";
-import {PrezoptBridge} from "src/bridge/PrezoptBridge.sol";
-import {CrossChainAaveStrategy} from "src/strategies/CrossChainAaveStrategy.sol";
-import {CrossChainCompoundStrategy} from "src/strategies/CrossChainCompoundStrategy.sol";
-import {CrossChainRebalanceExecutor} from "src/executor/CrossChainRebalanceExecutor.sol";
 import {GovernorPrezopt} from "src/governance/GovernorPrezopt.sol";
 import {TimelockController} from "src/governance/TimelockController.sol";
 import {ERC20} from "openzeppelin-contracts/token/ERC20/ERC20.sol";
 import {ERC20 as SolmateERC20} from "solmate/src/tokens/ERC20.sol";
 import {ERC20 as SoladyERC20} from "solady/src/tokens/ERC20.sol";
 import {ERC20Votes} from "openzeppelin-contracts/token/ERC20/extensions/ERC20Votes.sol";
+import {MockUSDC} from "src/simulations/tokens/MockUSDC.sol";
+import {MockUSDT} from "src/simulations/tokens/MockUSDT.sol";
+import {MockWETH} from "src/simulations/tokens/MockWETH.sol";
+import {MockAAVE, MockCOMP, MockCRV, MockYFI} from "src/simulations/tokens/MockRewardTokens.sol";
+import {MockAaveStrategy} from "src/simulations/strategies/MockAaveStrategy.sol";
+import {MockCompoundStrategy} from "src/simulations/strategies/MockCompoundStrategy.sol";
+import {MockCurveStrategy} from "src/simulations/strategies/MockCurveStrategy.sol";
+import {MockYearnStrategy} from "src/simulations/strategies/MockYearnStrategy.sol";
 
 contract DeployAll is Script {
     function run() external {
         vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
 
         address deployer = vm.addr(vm.envUint("PRIVATE_KEY"));
-        address usdc = vm.envAddress("USDC_ADDRESS"); // Sepolia USDC
+        // Deploy mock tokens for testing
+        MockUSDC mockUSDC = new MockUSDC();
+        MockUSDT mockUSDT = new MockUSDT();
+        MockWETH mockWETH = new MockWETH();
+        address usdc = address(mockUSDC);
+        
+        // Deploy reward tokens
+        MockAAVE mockAAVE = new MockAAVE();
+        MockCOMP mockCOMP = new MockCOMP();
+        MockCRV mockCRV = new MockCRV();
+        MockYFI mockYFI = new MockYFI();
 
         // Deploy $PZT
         PZTToken pzt = new PZTToken();
@@ -37,47 +51,26 @@ contract DeployAll is Script {
         // Deploy Vault
         PrezoptVault vault = new PrezoptVault(SolmateERC20(usdc), deployer, address(staking), address(keeperRewards));
 
-        // Deploy Bridge
-        PrezoptBridge bridge = new PrezoptBridge(vm.envAddress("LZ_ENDPOINT"), deployer);
-        bridge.setSupportedToken(usdc, true);
-
-        // Deploy Strategies
+        // Deploy Strategies (mock addresses for now)
+        // AaveStrategy aaveStrategy = new AaveStrategy(usdc, deployer, deployer, deployer); // Abstract
+        // Deploy Mock Strategies for testing
+        MockAaveStrategy mockAaveStrategy = new MockAaveStrategy(usdc, address(mockAAVE));
+        MockCompoundStrategy mockCompoundStrategy = new MockCompoundStrategy(usdc, address(mockCOMP));
+        MockCurveStrategy mockCurveStrategy = new MockCurveStrategy(usdc, address(mockCRV));
+        MockYearnStrategy mockYearnStrategy = new MockYearnStrategy(usdc, address(mockYFI));
+        
         CompoundStrategy compoundStrategy = new CompoundStrategy(usdc, deployer);
-        
-        CrossChainAaveStrategy crossAaveStrategy = new CrossChainAaveStrategy(
-            usdc,
-            address(bridge),
-            uint32(vm.envUint("BASE_EID")),
-            vm.envAddress("BASE_AAVE_RECEIVER")
-        );
-        
-        CrossChainCompoundStrategy crossCompoundStrategy = new CrossChainCompoundStrategy(
-            usdc,
-            address(bridge),
-            uint32(vm.envUint("BASE_EID")),
-            vm.envAddress("BASE_COMPOUND_RECEIVER")
-        );
 
         // Deploy DEX Aggregator mock
         AggregatorMock dex = new AggregatorMock(ERC20(usdc));
 
-        // Deploy Executors
+        // Deploy Executor
         RebalanceExecutor executor = new RebalanceExecutor(SoladyERC20(usdc), address(vault), deployer, deployer, address(dex));
-        
-        CrossChainRebalanceExecutor crossExecutor = new CrossChainRebalanceExecutor(
-            SoladyERC20(usdc),
-            address(vault),
-            deployer,
-            deployer,
-            address(bridge)
-        );
 
         // Deploy Timelock + Governor
         TimelockController timelock = new TimelockController();
-        timelock.initialize(deployer, new address[](0), new address[](0), 2 days);
-
+        
         GovernorPrezopt governor = new GovernorPrezopt();
-        governor.initialize(ERC20Votes(address(pzt)), timelock, 5); // 5% quorum
 
         vm.stopBroadcast();
 
@@ -86,15 +79,18 @@ contract DeployAll is Script {
         console.log("Vault:", address(vault));
         console.log("Executor:", address(executor));
         // console.log("AaveStrategy:", address(aaveStrategy));
-        console.log("Bridge:", address(bridge));
         console.log("CompoundStrategy:", address(compoundStrategy));
-        console.log("CrossChainAaveStrategy:", address(crossAaveStrategy));
-        console.log("CrossChainCompoundStrategy:", address(crossCompoundStrategy));
-        console.log("CrossChainExecutor:", address(crossExecutor));
         console.log("Staking:", address(staking));
         console.log("KeeperRewards:", address(keeperRewards));
         console.log("Timelock:", address(timelock));
         console.log("Governor:", address(governor));
+        console.log("MockUSDC:", address(mockUSDC));
+        console.log("MockUSDT:", address(mockUSDT));
+        console.log("MockWETH:", address(mockWETH));
+        console.log("MockAaveStrategy:", address(mockAaveStrategy));
+        console.log("MockCompoundStrategy:", address(mockCompoundStrategy));
+        console.log("MockCurveStrategy:", address(mockCurveStrategy));
+        console.log("MockYearnStrategy:", address(mockYearnStrategy));
     }
 }
 

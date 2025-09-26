@@ -1,0 +1,100 @@
+# Vault Statistics
+query VaultStats {
+  vault(id: "vault") {
+    totalAssets
+    totalSupply
+    sharePrice
+    depositCount
+    withdrawalCount
+    updatedAt
+  }
+}
+
+# User Portfolio
+query UserPortfolio($userAddress: String!) {
+  user(id: $userAddress) {
+    vaultShares
+    vaultAssets
+    stakedPZT
+    pendingRewards
+    totalDeposited
+    totalWithdrawn
+    depositCount
+    withdrawalCount
+  }
+  stakingUser(id: $userAddress) {
+    stakedAmount
+    rewardsClaimed
+    stakeCount
+    unstakeCount
+  }
+}
+
+# Recent Activity
+query RecentActivity($first: Int = 10) {
+  deposits(first: $first, orderBy: timestamp, orderDirection: desc) {
+    id
+    user { id }
+    assets
+    shares
+    timestamp
+    transactionHash
+  }
+  withdrawals(first: $first, orderBy: timestamp, orderDirection: desc) {
+    id
+    user { id }
+    assets
+    shares
+    timestamp
+    transactionHash
+  }
+}
+
+# Rebalance History
+query RebalanceHistory($first: Int = 20) {
+  rebalances(first: $first, orderBy: timestamp, orderDirection: desc) {
+    id
+    fromStrategy
+    toStrategy
+    amount
+    profit
+    timestamp
+    blockNumber
+    transactionHash
+  }
+}
+
+# Top Users
+query TopUsers($first: Int = 10) {
+  users(first: $first, orderBy: vaultAssets, orderDirection: desc) {
+    id
+    vaultAssets
+    vaultShares
+    totalDeposited
+    depositCount
+  }
+}
+
+# Staking Leaderboard
+query StakingLeaderboard($first: Int = 10) {
+  stakingUsers(first: $first, orderBy: stakedAmount, orderDirection: desc) {
+    id
+    stakedAmount
+    rewardsClaimed
+    stakeCount
+  }
+}
+
+# Daily Metrics
+query DailyMetrics($first: Int = 30) {
+  dailyMetrics(first: $first, orderBy: date, orderDirection: desc) {
+    id
+    date
+    totalAssets
+    totalUsers
+    dailyDeposits
+    dailyWithdrawals
+    dailyVolume
+    averageAPY
+  }
+}

@@ -1,0 +1,74 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema/schema.graphql
+dataSources:
+  - kind: ethereum
+    name: PrezoptVault
+    network: blockdag-testnet
+    source:
+      address: "0x697dcBeED2eF796D278875B697A066139710d4fa"
+      abi: PrezoptVault
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Vault
+        - User
+        - Deposit
+        - Withdrawal
+      abis:
+        - name: PrezoptVault
+          file: ./abis/PrezoptVault.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed address,uint256,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,indexed address,indexed address,uint256,uint256)
+          handler: handleWithdraw
+      file: ./src/vault.ts
+  - kind: ethereum
+    name: PZTStaking
+    network: blockdag-testnet
+    source:
+      address: "0x303A47b107bD6028E3F0E6c784501888251deB86"
+      abi: PZTStaking
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - StakingUser
+        - StakeEvent
+      abis:
+        - name: PZTStaking
+          file: ./abis/PZTStaking.json
+      eventHandlers:
+        - event: Staked(indexed address,uint256)
+          handler: handleStaked
+        - event: Unstaked(indexed address,uint256)
+          handler: handleUnstaked
+        - event: RewardsClaimed(indexed address,uint256)
+          handler: handleRewardsClaimed
+      file: ./src/staking.ts
+  - kind: ethereum
+    name: RebalanceExecutor
+    network: blockdag-testnet
+    source:
+      address: "0xA57309A9DB3870ac638490B368B6B9f5443eC623"
+      abi: RebalanceExecutor
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Rebalance
+      abis:
+        - name: RebalanceExecutor
+          file: ./abis/RebalanceExecutor.json
+      eventHandlers:
+        - event: Rebalanced(indexed address,indexed address,uint256,uint256)
+          handler: handleRebalanced
+      file: ./src/rebalance.ts

@@ -12,5 +12,5 @@ interface IRebalanceExecutor {
         bytes signature;
     }
 
-    function rebalance(RebalanceSignal calldata signal) external payable;
+    function rebalance(RebalanceSignal calldata signal) external;
 }

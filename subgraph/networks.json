@@ -1,0 +1,44 @@
+{
+  "blockdag-testnet": {
+    "PrezoptVault": {
+      "address": "0x697dcBeED2eF796D278875B697A066139710d4fa",
+      "startBlock": 0
+    },
+    "PZTStaking": {
+      "address": "0x303A47b107bD6028E3F0E6c784501888251deB86",
+      "startBlock": 0
+    },
+    "RebalanceExecutor": {
+      "address": "0xA57309A9DB3870ac638490B368B6B9f5443eC623",
+      "startBlock": 0
+    },
+    "PZTToken": {
+      "address": "0x78e965134D30B41D5657526a7dd0aB8F20604B29",
+      "startBlock": 0
+    },
+    "KeeperRewards": {
+      "address": "0xAE1b71bc3b519c6D7db594834C34112f6C60bDa0",
+      "startBlock": 0
+    },
+    "MockUSDC": {
+      "address": "0xA16ea5653d1d68221e626d994372b1AD33E8135A",
+      "startBlock": 0
+    },
+    "MockAaveStrategy": {
+      "address": "0x3d084FE0F02e45fE7033612Cb843f60E571db6B6",
+      "startBlock": 0
+    },
+    "MockCompoundStrategy": {
+      "address": "0x482C33Ce70aAF71b6dfF894149BDb47Fc00e0C2E",
+      "startBlock": 0
+    },
+    "MockCurveStrategy": {
+      "address": "0xBdbcdB91c12ae713246114d9Df0859390af43425",
+      "startBlock": 0
+    },
+    "MockYearnStrategy": {
+      "address": "0x845E36093581ac9c891360c4bD3Cbbb7C3032148",
+      "startBlock": 0
+    }
+  }
+}

@@ -1,0 +1,48 @@
+Prezopt Protocol Product Requirements Document (PRD) v0.1
+Blueprint Architecture
+Executive Summary
+Prezopt is an autonomous yield optimization protocol that dynamically reallocates user deposits across DeFi protocols to maximize risk adjusted returns. The system uses an off chain machine learning model to predict profitable rebalances and executes them via keeper bots on chain. The protocol charges a 5 basis point annual management fee distributed to $PZT stakers, treasury, and keepers.
+
+For the MVP on BlockDAG testnet, external protocols like Aave and Compound are not yet available. Therefore the system uses simulated yield protocols and tokens deployed on BlockDAG to enable full end to end functionality. The ML service and keeper bot interact with these simulated contracts as if they were real, enabling realistic testing and demonstration.
+
+All components are deployed on BlockDAG testnet. The architecture includes six repositories for independent development and deployment.
+
+Repository Structure
+prezopt-contracts
+This repository contains the core Prezopt protocol contracts deployed on BlockDAG testnet. It includes the PrezoptVault (ERC 4626), RebalanceExecutor, $PZT token, PZTStaking, KeeperRewards, and Governance contracts. These contracts are production ready and will be used when real protocols become available on BlockDAG.
+
+prezopt-simulations
+This repository contains simulated yield protocols and tokens for MVP testing on BlockDAG testnet. It includes mock tokens (MockUSDC, MockUSDT, MockWETH) and mock strategy adapters (MockAaveStrategy, MockCompoundStrategy, MockCurveStrategy, MockYearnStrategy). Each mock strategy simulates realistic yield accrual, TVL, and incentive emissions. These contracts implement the IStrategy interface and are fully compatible with the core Prezopt contracts.
+
+prezopt-ml-service
+This repository contains the machine learning service that predicts profitable rebalances. It fetches current state from the simulated protocols on BlockDAG via The Graph subgraph. It trains ensemble models on historical simulated data to forecast yield differentials. It generates cryptographically signed rebalance signals served via REST API to the keeper bot.
+
+prezopt-keeper
+This repository contains the keeper bot that executes profitable rebalances. It polls the ML service every 60 seconds, simulates current gas and slippage costs, and executes rebalance transactions on BlockDAG testnet via the RebalanceExecutor contract. After successful execution, it claims $PZT rewards from the KeeperRewards contract.
+
+prezopt-subgraph
+This repository contains The Graph subgraph that indexes all on chain events from both core and simulation contracts on BlockDAG testnet. It indexes deposits, withdrawals, rebalances, fee distributions, staking events, and governance actions. The frontend and ML service query this subgraph for real time state.
+
+prezopt-frontend
+This repository contains the user interface for Prezopt. It connects to BlockDAG testnet, allows users to deposit mock tokens, view positions, stake $PZT, and participate in governance. It queries The Graph subgraph for all data display and shows realistic APY, allocations, and rebalance history.
+
+Component Interactions
+The frontend connects to BlockDAG testnet and The Graph subgraph. Users deposit mock tokens into the PrezoptVault. The ML service queries The Graph for current allocations and protocol state from the simulated strategies. It generates signed rebalance signals sent to the keeper bot. The keeper bot executes transactions on BlockDAG testnet via the RebalanceExecutor, which interacts with the mock strategies. All events are indexed by The Graph and displayed in the frontend. $PZT rewards are distributed to stakers and keepers through the core contracts.
+
+Data Flow
+User deposits MockUSDC into PrezoptVault on BlockDAG testnet. The transaction emits a Deposit event indexed by The Graph. The ML service queries The Graph for current state including allocations across mock strategies. It calculates predicted yield differentials and generates a signed rebalance signal. The keeper bot receives the signal, validates profitability, and executes a rebalance transaction. The RebalanceExecutor withdraws from one mock strategy, swaps via mock DEX, and deposits into another. The transaction emits Rebalanced and FeeDistributed events. The Graph indexes these events. The frontend displays updated allocations, profit captured, and $PZT rewards earned. Users can withdraw with accrued yield or stake $PZT for fee revenue and governance power.
+
+Deployment
+All contracts from both prezopt-contracts and prezopt-simulations are deployed to BlockDAG testnet. The subgraph is deployed to The Graph Studio for BlockDAG. The ML service and keeper bot run as Docker containers on AWS ECS. The frontend is deployed to Vercel. All components communicate via BlockDAG RPC, The Graph GraphQL, and internal REST APIs.
+
+Future Migration
+When real protocols like Aave and Compound deploy to BlockDAG mainnet, the mock strategies in prezopt-simulations will be replaced by real strategy adapters in prezopt-contracts. The core protocol, ML service, keeper, subgraph, and frontend will remain unchanged. This enables seamless migration from simulated to real yield sources without disrupting user experience or system architecture.
+
+prezopt-simulations
+This repository contains simulated yield protocols and tokens for MVP testing on BlockDAG testnet. It includes mock tokens (MockUSDC, MockUSDT, MockWETH) and mock strategy adapters for four yield sources:
+
+MockAaveStrategy: Simulates Aave V3 lending with configurable APY and stkAAVE emissions
+MockCompoundStrategy: Simulates Compound V3 lending with configurable APY and COMP emissions
+MockCurve3PoolStrategy: Simulates Curve 3pool LP position with base yield and CRV emissions, including slippage modeling on swaps
+MockYearnStrategy: Simulates Yearn Finance vault with conservative APY and YFI emissions
+Each mock strategy implements the IStrategy interface, accrues yield over time based on block.timestamp, mints incentive tokens on harvest, and reports realistic TVL and APY. All contracts are fully compatible with the core Prezopt contracts.
